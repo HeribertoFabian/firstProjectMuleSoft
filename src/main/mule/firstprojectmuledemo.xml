@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0dd9ab59-ada1-4b69-a9ce-5911f1d76aba" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="45850d0f-634d-4b92-a116-74b20a6239c5" >
+		<http:request-connection protocol="HTTPS" host="dummy.restapiexample.com" />
+	</http:request-config>
+	<flow name="GETflow" doc:id="4a0ce76e-c859-471a-9811-618eaf6298fe" >
+		<http:listener doc:name="/GET hello" doc:id="e5c2b74b-e241-40e6-8b62-3435a8abc022" config-ref="HTTP_Listener_config" path="/hello" allowedMethods="GET"/>
+		<logger level="INFO" doc:name="Logger" doc:id="c03f7e6d-0e4f-498a-a36b-be79cc3f92ec" message="** GET flow hello invoked **"/>
+		<set-payload value='{"message":"hello"}' doc:name="Set Payload" doc:id="d4722d96-1c37-43cb-9592-1beace1a5b97" />
+	</flow>
+	<flow name="POSTFlow" doc:id="50a70738-3df3-4982-bef6-f0e5c3a92808" >
+		<http:listener doc:name="POST hello" doc:id="fac2e717-28ac-46ae-9c9d-750a0256cbf9" config-ref="HTTP_Listener_config" path="/hello" allowedMethods="POST" />
+		<logger level="INFO" doc:name="Copy_of_Logger" doc:id="6e540fc0-3928-4ba8-9c31-ec6cae84f118" message="** POST flow hello invoked **" />
+	</flow>
+	<flow name="schedulerFlow" doc:id="5b56b5a6-8ec2-4059-9399-5fe01ad86abc" >
+		<scheduler doc:name="Scheduler" doc:id="64182566-447e-4c9f-8b51-5d20c5ef27b7" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Logger" doc:id="29f9fd61-866b-4b9d-ae1c-ae4fe6b9c168" message="*** Scheduler got invoked ***"/>
+	</flow>
+	<flow name="GETEmployee" doc:id="8c80325a-f77d-4dc7-9914-74413cb4131e" >
+		<http:listener doc:name="GET employee" doc:id="7f202044-c2b3-4af7-a4dd-0f7a91e16a35" config-ref="HTTP_Listener_config" path="/employee" allowedMethods="GET"/>
+		<http:request method="GET" doc:name="Call Employee WS" doc:id="e73c14bc-48a4-4f2e-94e5-fc9cfc230abe" config-ref="HTTP_Request_configuration" path="/api/v1/employees"/>
+	</flow>
+</mule>
