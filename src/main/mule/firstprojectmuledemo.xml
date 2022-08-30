@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0dd9ab59-ada1-4b69-a9ce-5911f1d76aba" >
 		<http:listener-connection host="localhost" port="8081" />
 	</http:listener-config>
@@ -23,6 +24,9 @@ http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/cu
 			<vm:queue queueName="CustomerQueue" />
 		</vm:queues>
 	</vm:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="862ccecd-55c8-47b2-a9e0-45299761ccea" >
+		<file:connection workingDir="C:\demo\input" />
+	</file:config>
 	<flow name="GETflow" doc:id="4a0ce76e-c859-471a-9811-618eaf6298fe" >
 		<http:listener doc:name="/GET hello" doc:id="e5c2b74b-e241-40e6-8b62-3435a8abc022" config-ref="HTTP_Listener_config" path="/hello" allowedMethods="GET"/>
 		<logger level="INFO" doc:name="Logger" doc:id="c03f7e6d-0e4f-498a-a36b-be79cc3f92ec" message="** GET flow hello invoked **"/>
@@ -92,5 +96,13 @@ ns ns0 http://tempuri.org/
 	<flow name="SuscribeFlow" doc:id="a719331d-2ab4-485c-be41-86cc2ebfcd71" >
 		<vm:listener queueName="CustomerQueue" doc:name="Listener" doc:id="087d31b6-dbd1-4d66-9529-3bc72b063f74" config-ref="VM_Config"/>
 		<logger level="INFO" doc:name="Logger" doc:id="2358787e-0205-40f6-8f11-1b848401ba29" message="** Suscribe flow got invoked ** payload: #[payload]"/>
+	</flow>
+	<flow name="FileProcessingFlow" doc:id="46d62aff-cbc5-4bf1-9fb7-9f3c18c02461" >
+		<file:listener doc:name="On New or Updated File" doc:id="68e8bf89-4dce-4ca3-b2bf-c0d72ae488fd" config-ref="File_Config" directory="C:\demo\input" autoDelete="true" moveToDirectory="C:\demo\output">
+			<scheduling-strategy >
+				<fixed-frequency frequency="5" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</file:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="145e1c3e-43f9-41c5-abbd-1ab1c69a37fb" message="#[payload]"/>
 	</flow>
 </mule>
