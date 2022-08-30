@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0dd9ab59-ada1-4b69-a9ce-5911f1d76aba" >
 		<http:listener-connection host="localhost" port="8081" />
 	</http:listener-config>
@@ -17,6 +18,11 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
 		</wsc:connection>
 	</wsc:config>
+	<vm:config name="VM_Config" doc:name="VM Config" doc:id="5991d51c-d4c5-4092-acc0-a0f413eca825" >
+		<vm:queues >
+			<vm:queue queueName="CustomerQueue" />
+		</vm:queues>
+	</vm:config>
 	<flow name="GETflow" doc:id="4a0ce76e-c859-471a-9811-618eaf6298fe" >
 		<http:listener doc:name="/GET hello" doc:id="e5c2b74b-e241-40e6-8b62-3435a8abc022" config-ref="HTTP_Listener_config" path="/hello" allowedMethods="GET"/>
 		<logger level="INFO" doc:name="Logger" doc:id="c03f7e6d-0e4f-498a-a36b-be79cc3f92ec" message="** GET flow hello invoked **"/>
@@ -77,4 +83,14 @@ ns ns0 http://tempuri.org/
 		<set-variable value="30" doc:name="Set Variable" doc:id="e1b04bc6-6c16-47b8-8991-cfe9b6ea273a" variableName="var1" />
 		<logger level="INFO" doc:name="Logger" doc:id="d7f3c24c-079d-4e06-9672-dda931b5bb0a" message="#[vars.var1]"/>
 	</sub-flow>
+	<flow name="publishFlow" doc:id="5bd8eb2a-09ba-4088-b9b7-749815b80a7d" >
+		<http:listener doc:name="/Post Customer" doc:id="753cad38-b07c-4d21-9127-13c91b8e39f8" config-ref="HTTP_Listener_config" path="/customer" allowedMethods="POST"/>
+		<logger level="INFO" doc:name="publisher Logger" doc:id="a19466e8-dc30-490a-ab3f-b26a732da62e" message="*** Customer flow invoked *** "/>
+		<vm:publish queueName="CustomerQueue" doc:name="Publish" doc:id="bbc74b43-7583-442a-88b2-5fdcb5a992a5" config-ref="VM_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="98d31fdd-c80c-48eb-96f7-1a16df731c0a" message="** After Publish **"/>
+	</flow>
+	<flow name="SuscribeFlow" doc:id="a719331d-2ab4-485c-be41-86cc2ebfcd71" >
+		<vm:listener queueName="CustomerQueue" doc:name="Listener" doc:id="087d31b6-dbd1-4d66-9529-3bc72b063f74" config-ref="VM_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2358787e-0205-40f6-8f11-1b848401ba29" message="** Suscribe flow got invoked ** payload: #[payload]"/>
+	</flow>
 </mule>
