@@ -59,4 +59,22 @@ ns ns0 http://tempuri.org/
 		<wsc:consume doc:name="Consume" doc:id="c74a6fec-8d45-429d-93ad-73706eb41927" config-ref="Web_Service_Consumer_Config" operation="Add"/>
 		<logger level="INFO" doc:name="Logger" doc:id="2ed592b3-6269-48c4-85a1-b120d9ba11fc" message="#[payload.body.AddResponse.AddResult]"/>
 	</flow>
+	<flow name="MainFlow" doc:id="a1c08331-9e9b-4d39-afbc-d6b881bd9ded" >
+		<http:listener doc:name="/GET flowReference" doc:id="f37aeece-d271-4cd7-abf1-a3419bfbc05a" config-ref="HTTP_Listener_config" path="/flow_reference" allowedMethods="GET"/>
+		<logger level="INFO" doc:name="MainFlow logger" doc:id="cdd2bf48-6ca9-43d6-a013-365d15592f62" message="*** Main flow got invoked ***"/>
+		<set-variable value="10" doc:name="Set Variable" doc:id="4d20c121-180b-4ae4-98fc-4e6d3dbbcb98" variableName="var1"/>
+		<flow-ref doc:name="Flow Reference" doc:id="17bbf2d1-f938-4fb8-a072-4b85c38c47fe" name="PrivateFlow"/>
+		<logger level="INFO" doc:name="EndMainFlow logger" doc:id="7f00e005-52e4-454f-959f-304726936873" message="#[vars.var1]"/>
+	</flow>
+	<flow name="PrivateFlow" doc:id="e559573b-8349-4a56-8f0f-4ab75afc9048" >
+		<logger level="INFO" doc:name="PrivateFlow logger" doc:id="0bf0e81a-a4d4-46ab-b76f-c75f48779153" message="*** Private Flow got invoked ***"/>
+		<set-variable value="20" doc:name="Set Variable" doc:id="98dba19d-3d59-4566-8dba-c9a9c8a10a05" variableName="var1" />
+		<logger level="INFO" doc:name="Logger" doc:id="80e3caa0-45dc-4210-89cc-3dc72ef7d301" message="#[vars.var1]"/>
+		<flow-ref doc:name="Flow Reference" doc:id="8cca4ceb-96bd-4239-ab2d-2804ab900e68" name="Sub_Flow"/>
+	</flow>
+	<sub-flow name="Sub_Flow" doc:id="fb3a0639-cc78-4c6b-b746-50bd7407a0a2" >
+		<logger level="INFO" doc:name="SubFlow Logger" doc:id="11330050-0069-4546-adb1-db2dfa60898b" message="*** SubFlow was invoked ***"/>
+		<set-variable value="30" doc:name="Set Variable" doc:id="e1b04bc6-6c16-47b8-8991-cfe9b6ea273a" variableName="var1" />
+		<logger level="INFO" doc:name="Logger" doc:id="d7f3c24c-079d-4e06-9672-dda931b5bb0a" message="#[vars.var1]"/>
+	</sub-flow>
 </mule>
